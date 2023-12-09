@@ -462,3 +462,321 @@ COMMIT;
 
 ## RESTfull сервіс для управління даними
 
+**Діаграма класів:**
+
+![diagram.png](diagram.png)
+
+### Entity
+
+```java
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.Date;
+
+@Entity
+@Table(name="Sprint")
+@NoArgsConstructor
+@Getter
+@Setter
+public class Sprint {
+    @Id
+    @GeneratedValue
+    private int id;
+
+    @Column(name = "name", nullable = false)
+    private String name;
+
+    @Column(name = "goal", nullable = false)
+    private String goal;
+
+    @Column(name = "startdate", nullable = false)
+    private Date startdate;
+
+    @Column(name = "enddate", nullable = false)
+    private Date enddate;
+
+    @Column(name = "Project_ID", nullable = false)
+    private int projectID;
+}
+```
+
+### Repository
+
+```java
+import org.springframework.data.jpa.repository.JpaRepository;
+import ua.mibal.demo.model.Sprint;
+
+public interface SprintRepository extends JpaRepository<Sprint, Integer> {
+}
+```
+
+### Automatically generated Controller
+
+```java
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
+package org.springframework.data.rest.webmvc;
+
+import java.lang.reflect.Method;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.core.MethodParameter;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mapping.PersistentEntity;
+import org.springframework.data.mapping.PersistentProperty;
+import org.springframework.data.repository.query.Param;
+import org.springframework.data.repository.support.RepositoryInvoker;
+import org.springframework.data.rest.core.mapping.MethodResourceMapping;
+import org.springframework.data.rest.core.mapping.ResourceMappings;
+import org.springframework.data.rest.core.mapping.ResourceMetadata;
+import org.springframework.data.rest.core.mapping.SearchResourceMappings;
+import org.springframework.data.rest.webmvc.support.DefaultedPageable;
+import org.springframework.data.rest.webmvc.support.RepositoryEntityLinks;
+import org.springframework.data.util.TypeInformation;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.hateoas.Links;
+import org.springframework.hateoas.RepresentationModel;
+import org.springframework.hateoas.server.core.AnnotationAttribute;
+import org.springframework.hateoas.server.core.MethodParameters;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@RepositoryRestController
+class RepositorySearchController {
+    private static final String SEARCH = "/search";
+    private static final String BASE_MAPPING = "/{repository}/search";
+    private final RepositoryEntityLinks entityLinks;
+    private final ResourceMappings mappings;
+    private ResourceStatus resourceStatus;
+
+    public RepositorySearchController(RepositoryEntityLinks entityLinks, ResourceMappings mappings, HttpHeadersPreparer headersPreparer) {
+        Assert.notNull(entityLinks, "EntityLinks must not be null");
+        Assert.notNull(mappings, "ResourceMappings must not be null");
+        this.entityLinks = entityLinks;
+        this.mappings = mappings;
+        this.resourceStatus = ResourceStatus.of(headersPreparer);
+    }
+
+    @RequestMapping(
+        value = {"/{repository}/search"},
+        method = {RequestMethod.OPTIONS}
+    )
+    public HttpEntity<?> optionsForSearches(RootResourceInformation resourceInformation) {
+        verifySearchesExposed(resourceInformation);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAllow(Collections.singleton(HttpMethod.GET));
+        return ((ResponseEntity.BodyBuilder)ResponseEntity.ok().headers(headers)).build();
+    }
+
+    @RequestMapping(
+        value = {"/{repository}/search"},
+        method = {RequestMethod.HEAD}
+    )
+    public HttpEntity<?> headForSearches(RootResourceInformation resourceInformation) {
+        verifySearchesExposed(resourceInformation);
+        return ResponseEntity.noContent().build();
+    }
+
+    @ResponseBody
+    @RequestMapping(
+        value = {"/{repository}/search"},
+        method = {RequestMethod.GET}
+    )
+    public RepositorySearchesResource listSearches(RootResourceInformation resourceInformation) {
+        verifySearchesExposed(resourceInformation);
+        Links queryMethodLinks = this.entityLinks.linksToSearchResources(resourceInformation.getDomainType());
+        if (queryMethodLinks.isEmpty()) {
+            throw new ResourceNotFoundException();
+        } else {
+            return (RepositorySearchesResource)((RepositorySearchesResource)(new RepositorySearchesResource(resourceInformation.getDomainType())).add(queryMethodLinks)).add(ControllerUtils.getDefaultSelfLink());
+        }
+    }
+
+    @ResponseBody
+    @RequestMapping(
+        value = {"/{repository}/search/{search}"},
+        method = {RequestMethod.GET}
+    )
+    public ResponseEntity<?> executeSearch(RootResourceInformation resourceInformation, @RequestParam MultiValueMap<String, Object> parameters, @PathVariable String search, DefaultedPageable pageable, Sort sort, @RequestHeader HttpHeaders headers, RepresentationModelAssemblers assemblers) {
+        Method method = this.checkExecutability(resourceInformation, search);
+        Optional<Object> result = this.executeQueryMethod(resourceInformation.getInvoker(), parameters, method, pageable, sort);
+        SearchResourceMappings searchMappings = resourceInformation.getSearchMappings();
+        MethodResourceMapping methodMapping = searchMappings.getExportedMethodMappingForPath(search);
+        Class<?> domainType = methodMapping.getReturnedDomainType();
+        return this.toModel(result, domainType, headers, resourceInformation, assemblers);
+    }
+
+    protected ResponseEntity<?> toModel(Optional<Object> source, Class<?> domainType, HttpHeaders headers, RootResourceInformation information, RepresentationModelAssemblers assemblers) {
+        return (ResponseEntity)source.map((it) -> {
+            if (it instanceof Iterable<?> iterable) {
+                return ResponseEntity.ok(assemblers.toCollectionModel(iterable, domainType));
+            } else if (ClassUtils.isPrimitiveOrWrapper(it.getClass())) {
+                return ResponseEntity.ok(it);
+            } else {
+                PersistentEntity<?, ? extends PersistentProperty<?>> entity = information.getPersistentEntity();
+                return !entity.getType().isInstance(it) ? ResponseEntity.ok(it) : this.resourceStatus.getStatusAndHeaders(headers, it, entity).toResponseEntity(() -> {
+                    return assemblers.toFullResource(it);
+                });
+            }
+        }).orElseThrow(() -> {
+            return new ResourceNotFoundException();
+        });
+    }
+
+    @ResponseBody
+    @RequestMapping(
+        value = {"/{repository}/search/{search}"},
+        method = {RequestMethod.GET},
+        produces = {"application/x-spring-data-compact+json"}
+    )
+    public RepresentationModel<?> executeSearchCompact(RootResourceInformation resourceInformation, @RequestHeader HttpHeaders headers, @RequestParam MultiValueMap<String, Object> parameters, @PathVariable String repository, @PathVariable String search, DefaultedPageable pageable, Sort sort, RepresentationModelAssemblers assemblers) {
+        Method method = this.checkExecutability(resourceInformation, search);
+        Optional<Object> result = this.executeQueryMethod(resourceInformation.getInvoker(), parameters, method, pageable, sort);
+        ResourceMetadata metadata = resourceInformation.getResourceMetadata();
+        ResponseEntity<?> entity = this.toModel(result, metadata.getDomainType(), headers, resourceInformation, assemblers);
+        Object resource = entity.getBody();
+        ArrayList<Link> links = new ArrayList();
+        if (resource instanceof CollectionModel<?> model) {
+            if (model.getContent() != null) {
+                Iterator var17 = model.getContent().iterator();
+
+                while(var17.hasNext()) {
+                    Object obj = var17.next();
+                    if (null != obj && obj instanceof EntityModel) {
+                        EntityModel<?> res = (EntityModel)obj;
+                        links.add(resourceInformation.resourceLink(res));
+                    }
+                }
+
+                return CollectionModel.empty(links);
+            }
+        }
+
+        if (resource instanceof EntityModel<?> res) {
+            links.add(resourceInformation.resourceLink(res));
+        }
+
+        return CollectionModel.empty(links);
+    }
+
+    @RequestMapping(
+        value = {"/{repository}/search/{search}"},
+        method = {RequestMethod.OPTIONS}
+    )
+    public ResponseEntity<Object> optionsForSearch(RootResourceInformation information, @PathVariable String search) {
+        this.checkExecutability(information, search);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAllow(Collections.singleton(HttpMethod.GET));
+        return new ResponseEntity(headers, HttpStatus.OK);
+    }
+
+    @RequestMapping(
+        value = {"/{repository}/search/{search}"},
+        method = {RequestMethod.HEAD}
+    )
+    public ResponseEntity<Object> headForSearch(RootResourceInformation information, @PathVariable String search) {
+        this.checkExecutability(information, search);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    private Method checkExecutability(RootResourceInformation resourceInformation, String searchName) {
+        SearchResourceMappings searchMapping = verifySearchesExposed(resourceInformation);
+        Method method = searchMapping.getMappedMethod(searchName);
+        if (method == null) {
+            throw new ResourceNotFoundException();
+        } else {
+            return method;
+        }
+    }
+
+    private Optional<Object> executeQueryMethod(final RepositoryInvoker invoker, @RequestParam MultiValueMap<String, Object> parameters, Method method, DefaultedPageable pageable, Sort sort) {
+        LinkedMultiValueMap<String, Object> result = new LinkedMultiValueMap(parameters);
+        MethodParameters methodParameters = new MethodParameters(method, new AnnotationAttribute(Param.class));
+        List<MethodParameter> parameterList = methodParameters.getParameters();
+        List<TypeInformation<?>> parameterTypeInformations = TypeInformation.of(method.getDeclaringClass()).getParameterTypes(method);
+        parameters.entrySet().forEach((entry) -> {
+            methodParameters.getParameter((String)entry.getKey()).ifPresent((parameter) -> {
+                int parameterIndex = parameterList.indexOf(parameter);
+                TypeInformation<?> domainType = ((TypeInformation)parameterTypeInformations.get(parameterIndex)).getActualType();
+                ResourceMetadata metadata = this.mappings.getMetadataFor(domainType.getType());
+                if (metadata != null && metadata.isExported()) {
+                    result.put(parameter.getParameterName(), prepareUris((List)entry.getValue()));
+                }
+
+            });
+        });
+        return invoker.invokeQueryMethod(method, result, pageable.getPageable(), sort);
+    }
+
+    private static SearchResourceMappings verifySearchesExposed(RootResourceInformation resourceInformation) {
+        SearchResourceMappings resourceMappings = resourceInformation.getSearchMappings();
+        if (!resourceMappings.isExported()) {
+            throw new ResourceNotFoundException();
+        } else {
+            return resourceMappings;
+        }
+    }
+
+    private static List<Object> prepareUris(List<Object> source) {
+        if (source != null && !source.isEmpty()) {
+            ArrayList<Object> result = new ArrayList(source.size());
+            Iterator var2 = source.iterator();
+
+            while(var2.hasNext()) {
+                Object element = var2.next();
+
+                try {
+                    result.add(new URI(element.toString()));
+                } catch (URISyntaxException var5) {
+                    result.add(element);
+                }
+            }
+
+            return result;
+        } else {
+            return Collections.emptyList();
+        }
+    }
+}
+```
+
+### Application
+
+```java
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringDataDemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringDataDemoApplication.class, args);
+    }
+}
+```
