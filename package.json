@@ -2,9 +2,9 @@
   "name": "edu_db_labs",
   "version": "2.1.0",
   "main": "index.js",
-  "description": "Databases labs template",
+  "description": "Databases lab",
   "repository": "https://github.com/merrymike-noname/databases-course-work",
-  "author": "Andrey Boldak <boldak.andrey@gmail.com>",
+  "author": "Mykhailo Kovalenko <kovalenko10102004@gmail.com>",
   "license": "ECL 2.0",
   "scripts": {
     "docs:dev": "npx vuepress dev docs",
