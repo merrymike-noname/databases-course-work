@@ -2,7 +2,9 @@
 
 ## Попереднє заповнення таблиці Sprint
 
-![sprintTable1.png](sprintTable1.png)
+<p>
+    <img src="./sprintTable1.png">
+</p>
 
 ## Тестування
 
@@ -130,7 +132,9 @@ Content-Type: application/json
 
 **Результат:**
 
-![sprintTable2.png](sprintTable2.png)
+<p>
+    <img src="./sprintTable2.png">
+</p>
 
 ### Змінити
 
@@ -177,6 +181,8 @@ DELETE http://localhost:8080/sprints/102
 
 **Результат:**
 
-![sprintTable3.png](sprintTable3.png)
+<p>
+    <img src="./sprintTable3.png">
+</p>
 
 Sprint з id 102 було видалено

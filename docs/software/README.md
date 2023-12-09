@@ -464,7 +464,9 @@ COMMIT;
 
 **Діаграма класів:**
 
-![diagram.png](diagram.png)
+<p>
+    <img src="./diagram.png">
+</p>
 
 ### Entity
 
