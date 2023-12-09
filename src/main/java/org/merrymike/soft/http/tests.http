@@ -1,0 +1,33 @@
+### отримати всі
+
+GET http://localhost:8080/sprints
+
+### отримати за id=1
+
+GET http://localhost:8080/sprints/1
+
+### послати та створити
+
+POST http://localhost:8080/sprints
+Content-Type: application/json
+
+{
+  "name": "Unreal sprint",
+  "goal": "there is a goal description",
+  "startdate": "2023-09-01T09:53:00",
+  "enddate": "2023-09-02T09:53:00",
+  "projectID": 1
+}
+
+### змінити тільки 1 поле
+
+PATCH http://localhost:8080/sprints/1
+Content-Type: application/json
+
+{
+  "name": "Renamed Sprint"
+}
+
+### видалити
+
+DELETE http://localhost:8080/sprints/102
