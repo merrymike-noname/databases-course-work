@@ -483,7 +483,7 @@ import java.util.Date;
 @Setter
 public class Sprint {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(name = "name", nullable = false)
